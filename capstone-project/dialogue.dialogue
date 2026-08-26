@@ -1,0 +1,17 @@
+~ start
+sans_default: i got a question for ya.
+sans_amused: do you think even the worst person can change?
+- yes
+	sans_closed: [speed=0.1]...
+	sans_pissed: guess we'll find out. [wait=1] heh.
+- no
+	sans_wink: heh. no kiddin.
+	sans_pissed: let's just get this over with.
+- ...
+	sans_uncomfortable: what's that expression for..?
+	sans_horror: [speed=0.05]...
+	sans_pissed: you really are a freak, aren't you?
+- Start again => start
+- End the conversation => END
+sans_troubled: see ya later, kid.
+=> END

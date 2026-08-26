@@ -1,0 +1,69 @@
+[gd_scene load_steps=6 format=3 uid="uid://cnpj10xpkvye6"]
+
+[ext_resource type="Script" uid="uid://c81f1uxn0qxyd" path="res://sans.gd" id="1_631pb"]
+[ext_resource type="Texture2D" uid="uid://7s6nkf1ebi2n" path="res://Assets/Sprites/sans_ow/overworld_base.png" id="2_nxrpn"]
+[ext_resource type="Texture2D" uid="uid://bqa445kqevuw1" path="res://Assets/Sprites/sans_ow/overworld_ded.png" id="3_hqoh5"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_vuckr"]
+radius = 12.0
+height = 32.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_p25hk"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_nxrpn")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_hqoh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_hqoh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_hqoh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_hqoh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_hqoh5")
+}],
+"loop": false,
+"name": &"dies",
+"speed": 5.0
+}]
+
+[node name="sans" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 6
+collision_mask = 6
+script = ExtResource("1_631pb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["enemies"]]
+light_mask = 6
+visibility_layer = 6
+shape = SubResource("CapsuleShape2D_vuckr")
+
+[node name="Node2D" type="Area2D" parent="."]
+collision_layer = 6
+collision_mask = 6
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Node2D"]
+light_mask = 6
+visibility_layer = 6
+sprite_frames = SubResource("SpriteFrames_p25hk")
+autoplay = "default"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D" groups=["enemies"]]
+light_mask = 6
+visibility_layer = 6
+shape = SubResource("CapsuleShape2D_vuckr")
+
+[connection signal="area_entered" from="Node2D" to="." method="_on_hitbox_area_entered"]
