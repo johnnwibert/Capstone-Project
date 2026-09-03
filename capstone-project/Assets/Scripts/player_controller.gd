@@ -1,16 +1,15 @@
 extends CharacterBody2D
-var WalkSpeed = 200.0
-var DashSpeed = 1300.0
+var walk_speed = 300.0
+var dash_speed = 1600.0
 var dashing = false
-var DashWait = false
-var dir = 1
+var dash_wait = false
 var lerprate = 0.2
 var can_dash = true
 var can_doublejump = false
 var doublejumped = false
 var is_getup = false
-const SPEED = 250.0
-const JUMP_VELOCITY = -350.0
+const SPEED = 350.0
+const JUMP_VELOCITY = -450.0
 
 var bullet = preload("res://Assets/Scenes/bullet.tscn")
 var shootsfx = preload("res://Assets/Sounds/shoot.mp3")
@@ -28,19 +27,29 @@ var getupsfx = preload("res://Assets/Sounds/getup.mp3")
 func _ready() -> void:
 	$bgmusic.stream = bgmusic
 	$bgmusic.play()
-
-func _process(_delta: float) -> void:
+	
+func _physics_process(delta: float) -> void:
+	var direction = Input.get_axis("ui_left", "ui_right")
+	
+	# Add the gravity.
+	if not is_on_floor() and tag.animation != "boost":
+		velocity += get_gravity() * delta * 1.5
+	
+	# Movement
+	if direction and tag.animation != "boost":
+		velocity.x = direction * walk_speed
+	elif tag.animation != "boost":
+		velocity.x = 0
+	
 	# Player loses control when "fall"ing, so movement functions are disabled.
 	# Functions such as gravity continue to work (below).
 	if tag.animation == "fall" or tag.animation == "getup":
 		return
 	else:
 		if Input.is_action_just_pressed("ui_left"):
-			dir = -1
 			if tag.animation != "newdj_1" and tag.animation != "newdj_2":
 				muzzle.rotation_degrees = 180
 		elif Input.is_action_just_pressed("ui_right"):
-			dir = 1
 			if tag.animation != "newdj_1" and tag.animation != "newdj_2":
 				muzzle.rotation_degrees = 0
 		if Input.is_action_just_pressed("shoot"):
@@ -53,9 +62,20 @@ func _process(_delta: float) -> void:
 				velocity.x = SPEED * -1
 			else:
 				velocity.x = SPEED
+				
 		# Aerial boost, refreshes upon landing
 		if Input.is_action_just_pressed("dash") and dashing == false and can_dash and !is_on_floor():
-			dash()
+			if tag.animation != "fall":
+				velocity.y = 0
+				var dir = -1 if tag.flip_h else 1
+				tag.play("boost")
+				$boost.stream = boostsfx
+				$boost.play()
+				can_dash = false
+				dashing = true
+				velocity.x = dash_speed * dir
+				dashing = false
+				pass
 		# Refreshes double jump and dash upon touching the ground
 		if is_on_floor():
 			doublejumped = false
@@ -63,12 +83,7 @@ func _process(_delta: float) -> void:
 			can_dash = true
 		if !is_on_floor() and !doublejumped:
 			can_doublejump = true
-
-func _physics_process(delta: float) -> void:
-	# Add the gravity.
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-		
+	
 	# Called when player falls off map, respawns at a set location
 	if (position.y >= 512):
 		velocity = Vector2.ZERO
@@ -92,19 +107,18 @@ func _physics_process(delta: float) -> void:
 				is_getup = true
 			pass
 	else:
-		var direction = Input.get_axis("ui_left", "ui_right")
 		if tag.animation == "newdj_1" or tag.animation == "newdj_2":
 			pass
-		elif dir > 0:
+		elif direction > 0:
 			tag.flip_h = false
 			muzzle.position.x = 18.0
 			muzzle.rotation_degrees = 0
-		elif dir < 0:
+		elif direction < 0:
 			tag.flip_h = true
 			muzzle.position.x = -18.0
 			muzzle.rotation_degrees = 180
 		if is_on_floor():
-			if tag.animation != "idle" and tag.animation != "walk" and tag.animation != "shoot" and tag.animation != "walkshoot" and tag.animation == "boost":
+			if tag.animation == "boost" and direction != 0:
 				tag.play("roll")
 			elif direction == 0 and tag.animation != "shoot":
 				tag.play("idle")
@@ -117,6 +131,7 @@ func _physics_process(delta: float) -> void:
 				tag.play("doublejump")
 			else:
 				tag.play("jump")
+	
 		# Handle jump.
 		if Input.is_action_just_pressed("up") and is_on_floor():
 			$sfx.stream = jumpsfx
@@ -125,25 +140,20 @@ func _physics_process(delta: float) -> void:
 			if tag.animation == "roll":
 				velocity.y = JUMP_VELOCITY
 				if velocity.x > 0:
-					velocity.x = SPEED * 8
+					velocity.x = move_toward(SPEED * 8, 0, delta)
 				else:
 					velocity.x = SPEED * -8
 			else:
 				velocity.y = JUMP_VELOCITY
 		# Double jump function
 		if Input.is_action_just_pressed("up") and can_doublejump and !is_on_floor():
-				tag.play("newdj_1")
-				muzzle.rotation_degrees = 90
-				if dir == 1:
-					muzzle.position.x = 2
-				else:
-					muzzle.position.x = -2
-				muzzle.position.y = 17
+				tag.play("doublejump")
+				velocity.y = JUMP_VELOCITY * 0.8
 		if dashing == false:
 			if Input.is_action_pressed("ui_left") and !dashing == true:
-				velocity.x = lerp(velocity.x, -WalkSpeed, lerprate)
+				velocity.x = lerp(velocity.x, -walk_speed, lerprate)
 			if Input.is_action_pressed("ui_right") and !dashing == true:
-				velocity.x = lerp(velocity.x, WalkSpeed, lerprate)
+				velocity.x = lerp(velocity.x, walk_speed, lerprate)
 			elif !Input.is_action_pressed("ui_left") and !Input.is_action_pressed("ui_right"):
 				velocity.x = lerp(velocity.x, 0.0, 0.1)
 	move_and_slide()
@@ -176,21 +186,6 @@ func shoot():
 					tag.play("boostshoot")
 				else:
 					tag.play("walkshoot")
-		
-
-# Handles an aerial dash
-func dash():
-	if tag.animation != "fall":
-		tag.play("boost")
-		$boost.stream = boostsfx
-		$boost.play()
-		can_dash = false
-		dashing = true
-		velocity.x = DashSpeed * dir 
-		velocity.x = lerp(velocity.x, 0.0, 0.001)
-		dashing = false
-		pass
-	
 
 func _on_animated_sprite_2d_animation_finished() -> void:
 	if !is_processing_input():
@@ -204,22 +199,6 @@ func _on_animated_sprite_2d_animation_finished() -> void:
 		tag.play("walk")
 	if tag.animation == "walkshoot":
 		tag.play("walk")
-	if tag.animation == "newdj_2":
-		tag.play("doublejump")
-	if tag.animation == "newdj_1":
-		tag.play("newdj_2")
-		$sfx.stream = dubjumpsfx
-		$sfx.play()
-		can_doublejump = false
-		velocity.y = JUMP_VELOCITY / 1.5
-		doublejumped = true
-		shoot()
-		if !tag.flip_h:
-			muzzle.rotation_degrees = 0
-			muzzle.position = Vector2(18, 1)
-		else:
-			muzzle.rotation_degrees = 180
-			muzzle.position = Vector2(-18, 1)
 	if tag.animation == "boostshoot":
 		tag.play("boost")
 	if tag.animation == "airshoot":
