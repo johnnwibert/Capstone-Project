@@ -417,7 +417,7 @@ root_node = NodePath("../..")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentAnimator" unique_id=194735419]
 sprite_frames = SubResource("SpriteFrames_c3tg1")
-animation = &"newdj_2"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="muzzle" type="Marker2D" parent="AgentAnimator/AnimatedSprite2D" unique_id=2028461270]

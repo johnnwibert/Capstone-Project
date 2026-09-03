@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c2e5ldx37f247"]
+[gd_scene format=3 uid="uid://c2e5ldx37f247"]
 
 [ext_resource type="Texture2D" uid="uid://cugelep3035r0" path="res://Assets/Sprites/robot_mad/robotsheet.png" id="1_8qp3m"]
 
@@ -95,7 +95,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_sylft")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
@@ -103,7 +103,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_cmxd1")
 }],
-"loop": true,
+"loop": 1,
 "name": &"move_left",
 "speed": 5.0
 }, {
@@ -111,24 +111,24 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ie83k")
 }],
-"loop": true,
+"loop": 1,
 "name": &"move_right",
 "speed": 5.0
 }]
 
-[node name="Player2Big" type="CharacterBody2D" groups=["enemies"]]
+[node name="Player2Big" type="CharacterBody2D" unique_id=1283084576 groups=["enemies"]]
 collision_mask = 3
 script = SubResource("GDScript_sylft")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["enemies"]]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=191586842 groups=["enemies"]]
 position = Vector2(0, 7.475)
 shape = SubResource("CapsuleShape2D_vvgv8")
 
-[node name="AgentAnimator" type="Node2D" parent="."]
+[node name="AgentAnimator" type="Node2D" parent="." unique_id=809308648]
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="AgentAnimator"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="AgentAnimator" unique_id=1470450834]
 root_node = NodePath("../..")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentAnimator"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="AgentAnimator" unique_id=1996953142]
 sprite_frames = SubResource("SpriteFrames_oxgra")
 animation = &"idle"
