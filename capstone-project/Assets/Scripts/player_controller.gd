@@ -6,7 +6,6 @@ var dash_wait = false
 var lerprate = 0.2
 var can_dash = true
 var can_doublejump = false
-var doublejumped = false
 var is_getup = false
 const SPEED = 350.0
 const JUMP_VELOCITY = -450.0
@@ -78,19 +77,18 @@ func _physics_process(delta: float) -> void:
 				pass
 		# Refreshes double jump and dash upon touching the ground
 		if is_on_floor():
-			doublejumped = false
+			can_doublejump = true
 		if is_on_floor() and !can_dash:
 			can_dash = true
-		if !is_on_floor() and !doublejumped:
-			can_doublejump = true
 	
 	# Called when player falls off map, respawns at a set location
 	if (position.y >= 512):
-		velocity = Vector2.ZERO
-		$fall.stream = fallsfx
-		$fall.play()
-		tag.play("fall")
-		position = Vector2(200, -700)
+		#velocity = Vector2.ZERO
+		#$fall.stream = fallsfx
+		#$fall.play()
+		#tag.play("fall")
+		#position = Vector2(200, -700)
+		position = Vector2(146, -16)
 
 		
 	# Player loses control when "fall"ing, so movement functions are disabled.
@@ -147,6 +145,7 @@ func _physics_process(delta: float) -> void:
 				velocity.y = JUMP_VELOCITY
 		# Double jump function
 		if Input.is_action_just_pressed("up") and can_doublejump and !is_on_floor():
+				can_doublejump = false
 				tag.play("doublejump")
 				velocity.y = JUMP_VELOCITY * 0.8
 		if dashing == false:
